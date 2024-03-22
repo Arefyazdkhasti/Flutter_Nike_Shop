@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nike_shop/data/order.dart';
 import 'package:nike_shop/ui/cart/price_info.dart';
 import 'package:nike_shop/ui/shipping/bloc/shipping_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../data/repo/order_repository.dart';
 import '../payment_webview.dart';
@@ -61,7 +62,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
       body: BlocProvider<ShippingBloc>(
         create: (context) {
           final bloc = ShippingBloc(orderRepository);
-          subscription = bloc.stream.listen((event) {
+          subscription = bloc.stream.listen((event) async {
             if (event is ShippingError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -70,7 +71,7 @@ class _ShippingScreenState extends State<ShippingScreen> {
               );
             } else if (event is ShippingSuccess) {
               if (event.result.bankGatewayUrl.isNotEmpty) {
-                Navigator.of(
+                /* avigator.of(
                   context,
                   rootNavigator: true,
                 ).push(
@@ -79,7 +80,11 @@ class _ShippingScreenState extends State<ShippingScreen> {
                       bankGatewayUrl: event.result.bankGatewayUrl,
                     ),
                   ),
-                );
+                ); */
+                if (!await launchUrl(Uri.parse(event.result.bankGatewayUrl))) {
+                  throw Exception(
+                      'Could not launch ${event.result.bankGatewayUrl}');
+                }
               } else {
                 Navigator.of(context).push(
                   MaterialPageRoute(

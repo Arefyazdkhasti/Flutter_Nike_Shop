@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nike_shop/ui/receipt/payment_receipt.dart';
 import 'package:webview_flutter/webview_flutter.dart';

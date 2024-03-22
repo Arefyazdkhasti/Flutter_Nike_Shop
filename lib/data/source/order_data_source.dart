@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 
 import '../order.dart';
@@ -7,6 +9,8 @@ abstract class IOrderDataSource {
   Future<CreateOrderResult> create(CreateOrderParams params);
 
   Future<PaymentReceiptData> getPaymentReceipt(int orderID);
+
+  Future<List<OrderEntity>> getOrders();
 }
 
 class OrderRemoteDataSource implements IOrderDataSource {
@@ -38,5 +42,11 @@ class OrderRemoteDataSource implements IOrderDataSource {
       'order/checkout?order_id=$orderID',
     );
     return PaymentReceiptData.fromJson(response.data);
+  }
+
+  @override
+  Future<List<OrderEntity>> getOrders() async {
+    final response = await httpClient.get('order/list');
+    return (response.data as List).map((e) => OrderEntity.fromJson(e)).toList();
   }
 }
