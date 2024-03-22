@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:nike_shop/data/favourite_manager.dart';
 import 'package:nike_shop/ui/root.dart';
 
 import 'data/repo/auth_repository.dart';
 
-void main() {
+void main() async {
+  await FavouriteManeger.init();
   WidgetsFlutterBinding.ensureInitialized();
   authRepository.loadAuthInfo();
   runApp(const MyApp());

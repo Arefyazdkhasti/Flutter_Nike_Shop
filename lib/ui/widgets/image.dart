@@ -1,13 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class ImageLoadingService extends StatelessWidget {
   final String imageUrl;
   final BorderRadiusGeometry? imageBorderRadius;
 
-  const ImageLoadingService(
-      {Key? key, required this.imageUrl, this.imageBorderRadius,})
-      : super(key: key);
+  const ImageLoadingService({
+    Key? key,
+    required this.imageUrl,
+    this.imageBorderRadius,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +20,9 @@ class ImageLoadingService extends StatelessWidget {
       child: CachedNetworkImage(
         imageUrl: imageUrl,
         fit: BoxFit.cover,
+        errorWidget: (context, url, error) {
+          return Icon(Icons.error);
+        },
       ),
     );
   }

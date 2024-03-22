@@ -1,17 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nike_shop/data/product.dart';
 import 'package:nike_shop/data/repo/product_repository.dart';
 import 'package:nike_shop/ui/list/bloc/product_list_bloc.dart';
+import 'package:nike_shop/ui/product/bloc/product_bloc.dart';
 import 'package:nike_shop/ui/product/product.dart';
 import 'package:nike_shop/ui/widgets/error.dart';
 
 class ProductListScreen extends StatefulWidget {
   final int sortId;
 
-  ProductListScreen({
+  const ProductListScreen({
     super.key,
     required this.sortId,
   });
@@ -20,8 +19,14 @@ class ProductListScreen extends StatefulWidget {
   State<ProductListScreen> createState() => _ProductListScreenState();
 }
 
+enum ViewType {
+  grid,
+  list,
+}
+
 class _ProductListScreenState extends State<ProductListScreen> {
   ProductListBloc? bloc;
+  ViewType viewType = ViewType.grid;
 
   @override
   void dispose() {
@@ -67,85 +72,77 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         ]),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  builder: (context) {
-                                    return Container(
-                                      height: 300,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 24, bottom: 24),
-                                        child: Column(
-                                          children: [
-                                            Text('انتخاب مرتب سازی'),
-                                            Expanded(
-                                              child: ListView.builder(
-                                                  itemCount:
-                                                      state.sortNames.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    final selectedSortIndex =
-                                                        state.sort;
-                                                    return Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                        horizontal: 16,
-                                                        vertical: 8,
-                                                      ),
-                                                      child: SizedBox(
-                                                        width: 32,
-                                                        child: InkWell(
-                                                          onTap: () {
-                                                            bloc?.add(
-                                                              ProductListStarted(
-                                                                  sort: index),
-                                                            );
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          child: Row(
-                                                            children: [
-                                                              Text(
-                                                                state.sortNames[
-                                                                    index],
-                                                              ),
-                                                              const SizedBox(
-                                                                  width: 8),
-                                                              if (index ==
-                                                                  selectedSortIndex)
-                                                                Icon(
-                                                                  CupertinoIcons
-                                                                      .check_mark_circled_solid,
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .primary,
-                                                                )
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
+                      child: InkWell(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return Container(
+                                padding: const EdgeInsets.only(
+                                  top: 24,
+                                  bottom: 24,
+                                ),
+                                width: MediaQuery.of(context).size.width,
+                                height: 230,
+                                child: Column(
+                                  children: [
+                                    Text('انتخاب مرتب سازی'),
+                                    ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: state.sortNames.length,
+                                        itemBuilder: (context, index) {
+                                          final selectedSortIndex = state.sort;
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 8,
+                                            ),
+                                            child: SizedBox(
+                                              width: 32,
+                                              child: InkWell(
+                                                onTap: () {
+                                                  bloc?.add(
+                                                    ProductListStarted(
+                                                        sort: index),
+                                                  );
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    Text(
+                                                      state.sortNames[index],
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    if (index ==
+                                                        selectedSortIndex)
+                                                      Icon(
+                                                        CupertinoIcons
+                                                            .check_mark_circled_solid,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary,
+                                                      )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        })
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Expanded(
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(CupertinoIcons.sort_down),
+                                  const IconButton(
+                                    onPressed: null,
+                                    icon: Icon(CupertinoIcons.sort_down),
                                   ),
                                   Column(
                                     crossAxisAlignment:
@@ -170,36 +167,50 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                 ],
                               ),
                             ),
-                          ),
-                          Container(
-                            width: 1,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .outline
-                                .withOpacity(0.2),
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(CupertinoIcons.square_grid_2x2),
-                          )
-                        ],
+                            Container(
+                              width: 1,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .outline
+                                  .withOpacity(0.2),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  viewType = viewType == ViewType.grid
+                                      ? ViewType.list
+                                      : ViewType.grid;
+                                });
+                              },
+                              icon: Icon(viewType == ViewType.list
+                                  ? CupertinoIcons.square_grid_2x2
+                                  : CupertinoIcons.list_bullet),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   Expanded(
-                    child: GridView.builder(
-                      itemCount: state.products.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.65,
-                      ),
-                      itemBuilder: (context, index) {
-                        return ProductItem(
-                          product: state.products[index],
-                          borderRadius: BorderRadius.zero,
+                    child: RefreshIndicator(
+                      onRefresh: () => Future.sync(() {
+                        bloc?.add(
+                          ProductListStarted(sort: widget.sortId),
                         );
-                      },
+                      }),
+                      child: GridView.builder(
+                        itemCount: state.products.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: viewType == ViewType.grid ? 2 : 1,
+                          childAspectRatio: 0.65,
+                        ),
+                        itemBuilder: (context, index) {
+                          return ProductItem(
+                            product: state.products[index],
+                            borderRadius: BorderRadius.zero,
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],

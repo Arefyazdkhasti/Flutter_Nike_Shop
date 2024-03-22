@@ -102,41 +102,49 @@ class _CartScreenState extends State<CartScreen> {
           body: SafeArea(
             child: BlocBuilder<CartBloc, CartState>(builder: ((context, state) {
               if (state is CartSuccess) {
-                return ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 50),
-                  physics: defaultScrollPhysics,
-                  itemCount: state.cartResponse.cartItems.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index < state.cartResponse.cartItems.length) {
-                      final data = state.cartResponse.cartItems[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: CartItem(
-                          data: data,
-                          theme: theme,
-                          onDeleteButtonClicked: () {
-                            cartBloc?.add(CartDeleteButtonClicked(data.id));
-                          },
-                          onIncreaseButtonClicked: () {
-                            cartBloc?.add(IncreaseCountButtonClicked(data.id));
-                          },
-                          onDecreaseButtonClicked: () {
-                            if (data.count > 1) {
+                return RefreshIndicator(
+                  onRefresh: () => Future.sync(() {
+                    cartBloc?.add(
+                        CartStarted(AuthRepository.authChangeNotifier.value));
+                  }),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(bottom: 50),
+                    physics: defaultScrollPhysics,
+                    itemCount: state.cartResponse.cartItems.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index < state.cartResponse.cartItems.length) {
+                        final data = state.cartResponse.cartItems[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: CartItem(
+                            data: data,
+                            theme: theme,
+                            onDeleteButtonClicked: () {
+                              cartBloc?.add(CartDeleteButtonClicked(data.id));
+                            },
+                            onIncreaseButtonClicked: () {
                               cartBloc
-                                  ?.add(DecreaseCountButtonClicked(data.id));
-                            }
-                          },
-                        ),
-                      );
-                    } else {
-                      //price info item
-                      return PriceInfo(
-                        payablePrice: state.cartResponse.payablePrice,
-                        totalPrice: state.cartResponse.totalPrice,
-                        shippingCost: state.cartResponse.shippingCost,
-                      );
-                    }
-                  },
+                                  ?.add(IncreaseCountButtonClicked(data.id));
+                            },
+                            onDecreaseButtonClicked: () {
+                              if (data.count > 1) {
+                                cartBloc
+                                    ?.add(DecreaseCountButtonClicked(data.id));
+                              }
+                            },
+                          ),
+                        );
+                      } else {
+                        //price info item
+                        return PriceInfo(
+                          payablePrice: state.cartResponse.payablePrice,
+                          totalPrice: state.cartResponse.totalPrice,
+                          shippingCost: state.cartResponse.shippingCost,
+                        );
+                      }
+                    },
+                  ),
                 );
               } else if (state is CartLoading) {
                 return const Center(child: CircularProgressIndicator());

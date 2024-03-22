@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nike_shop/data/repo/auth_repository.dart';
 import 'package:nike_shop/data/repo/cart_repository.dart';
+import 'package:nike_shop/ui/profile/profile.dart';
 import 'package:nike_shop/ui/widgets/badge.dart';
 
 import 'cart/cart.dart';
@@ -57,22 +57,21 @@ class _RootScreenState extends State<RootScreen> {
           body: IndexedStack(
             index: selectedScreenIndex,
             children: [
-              _navigator(_homeKey, homeIndex, const HomeScreen()),
-              _navigator(_cartKey, cartIndex, const CartScreen()),
               _navigator(
-                  _profileKey,
-                  profileIndex,
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('Profile'),
-                      ElevatedButton(
-                          onPressed: () {
-                            authRepository.signOut();
-                          },
-                          child: const Text('خروج'))
-                    ],
-                  )),
+                _homeKey,
+                homeIndex,
+                const HomeScreen(),
+              ),
+              _navigator(
+                _cartKey,
+                cartIndex,
+                const CartScreen(),
+              ),
+              _navigator(
+                _profileKey,
+                profileIndex,
+                const ProfileScreen(),
+              ),
             ],
           ),
           bottomNavigationBar: NavigationBar(
